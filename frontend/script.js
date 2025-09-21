@@ -1,5 +1,5 @@
 // config
-const API_URL = "https://REPLACE_WITH_RENDER_BACKEND_URL"; // <-- you will replace this after backend is up
+const API_URL = "https://senseai-backend.onrender.com"; // <-- you will replace this after backend is up
 const MODEL_PATH = "model/model.json"; // ensure model files are in frontend/model/
 const LABELS_PATH = "models/metadata.json";     // create frontend/labels.json (array of labels)
 
@@ -133,3 +133,4 @@ fileInput.onchange = async (ev) => {
   }
   fileInput.value = null;
 };
+
