@@ -1,5 +1,5 @@
 // config
-const API_URL = "https://REPLACE_WITH_RENDER_BACKEND_URL"; // update after backend deploy
+const API_URL = "https://senseai-backend1.onrender.com"; // update after backend deploy
 const MODEL_PATH = "model/model.json";
 const META_PATH = "model/metadata.json";
 
@@ -100,3 +100,4 @@ fileInput.onchange = async ev => {
   } else addBubble("⚠️ Could not classify.", "bot");
   fileInput.value=null;
 };
+
