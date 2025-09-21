@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SenseAI — Health Chat</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- TensorFlow.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="title">SenseAI · Healthcare Chat</div>
+    </header>
+
+    <main class="chat-area">
+      <div id="messages" class="messages"></div>
+    </main>
+
+    <footer class="input-bar">
+      <input id="fileInput" type="file" accept="image/*" style="display:none" />
+      <button id="imgBtn" title="Upload image" class="icon-btn">📷</button>
+      <input id="textInput" class="text-input" placeholder="Type a message..." />
+      <button id="sendBtn" class="send-btn">➤</button>
+      <select id="langSelect" title="Language" class="lang-select">
+        <option value="en">EN</option>
+        <option value="hi">HI</option>
+        <option value="te">TE</option>
+        <option value="ta">TA</option>
+        <option value="bn">BN</option>
+      </select>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
