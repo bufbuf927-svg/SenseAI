@@ -6,25 +6,20 @@ const LABELS_PATH = "model/metadata.json";
 let model = null;
 let labels = [];
 
-// Initialize TFJS model + labels
+// Initialize model
 async function init() {
   try {
     const metadata = await (await fetch(LABELS_PATH)).json();
     labels = metadata.labels || [];
-    console.log("Labels loaded:", labels);
-  } catch(e) {
-    console.warn("Could not load metadata.json", e);
-  }
+  } catch(e) { console.warn("No metadata.json", e); }
+
   try {
     model = await tf.loadLayersModel(MODEL_PATH);
-    console.log("TFJS model loaded");
-  } catch(e){
-    console.warn("TFJS model not loaded:", e);
-  }
+  } catch(e) { console.warn("No model loaded", e); }
 }
 init();
 
-// UI helpers
+// UI refs
 const messagesEl = document.getElementById("messages");
 const textInput = document.getElementById("textInput");
 const sendBtn = document.getElementById("sendBtn");
@@ -33,6 +28,7 @@ const fileInput = document.getElementById("fileInput");
 const langSelect = document.getElementById("langSelect");
 const hospitalBtn = document.getElementById("hospitalBtn");
 
+// Helpers
 function addBubble(text, who="bot", html=false){
   const d = document.createElement("div");
   d.className = `bubble ${who}`;
@@ -58,84 +54,73 @@ function showTyping(){
 }
 function hideTyping(){ const t = document.getElementById("__typing"); if(t) t.remove(); }
 
-// File classification
+// Classify uploaded image
 async function classifyFile(file){
-  if(!model){
-    addBubble("⚠️ No image model loaded.", "bot");
-    return null;
-  }
+  if(!model){ addBubble("⚠️ No image model loaded.","bot"); return null; }
   const img = new Image();
-  const dataUrl = await new Promise((res, rej) => {
-    const reader = new FileReader();
-    reader.onload = e => res(e.target.result);
-    reader.onerror = rej;
+  const dataUrl = await new Promise((res, rej)=>{
+    const reader=new FileReader();
+    reader.onload=e=>res(e.target.result);
+    reader.onerror=rej;
     reader.readAsDataURL(file);
   });
-  img.src = dataUrl;
+  img.src=dataUrl;
   await img.decode();
 
-  const tensor = tf.browser.fromPixels(img)
-    .resizeNearestNeighbor([224,224])
-    .expandDims(0).toFloat().div(255.0);
-
+  const tensor = tf.browser.fromPixels(img).resizeNearestNeighbor([224,224]).expandDims(0).toFloat().div(255.0);
   const preds = await model.predict(tensor).data();
   const topIdx = preds.indexOf(Math.max(...preds));
-  const confidence = preds[topIdx];
-  const label = labels[topIdx] || `class_${topIdx}`;
-  return { label, confidence, dataUrl };
+  return { label: labels[topIdx]||`class_${topIdx}`, confidence: preds[topIdx], dataUrl };
 }
 
-// Chat: text
+// Send text
 sendBtn.onclick = async () => {
   const txt = textInput.value.trim();
   const lang = langSelect.value || "en";
   if(!txt) return;
-  addBubble(txt, "user");
+  addBubble(txt,"user");
   textInput.value = "";
   showTyping();
   try{
-    const res = await fetch(`${API_URL}/chat`, {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ message: txt, lang })
+    const res = await fetch(`${API_URL}/chat`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ message:txt, lang })
     });
     const data = await res.json();
     hideTyping();
-    addBubble(data.reply, "bot", true);
+    addBubble(data.reply,"bot",true);
   }catch(e){
     hideTyping();
-    addBubble("⚠️ Server error.", "bot");
+    addBubble("⚠️ Server error.","bot");
   }
 };
 
-// Chat: image upload
+// Upload image
 imgBtn.onclick = () => fileInput.click();
-fileInput.onchange = async (ev) => {
-  const file = ev.target.files[0];
+fileInput.onchange = async (ev)=>{
+  const file=ev.target.files[0];
   if(!file) return;
-  addImageThumb(URL.createObjectURL(file), "user");
+  addImageThumb(URL.createObjectURL(file),"user");
   showTyping();
-  const result = await classifyFile(file).catch(() => null);
+  const result = await classifyFile(file).catch(()=>null);
+  hideTyping();
   if(result){
-    hideTyping();
-    const html = `🩺 <strong>${result.label}</strong> (${(result.confidence*100).toFixed(1)}%)<br><small>Not a diagnosis. Consult clinician.</small>`;
-    addBubble(html, "bot", true);
+    const html = `🩺 <strong>${result.label}</strong> (${(result.confidence*100).toFixed(1)}%)<br><small>Not a diagnosis. Consult a doctor.</small>`;
+    addBubble(html,"bot",true);
   } else {
-    hideTyping();
-    addBubble("⚠️ Could not classify image.", "bot");
+    addBubble("⚠️ Could not classify image.","bot");
   }
-  fileInput.value = null;
+  fileInput.value=null;
 };
 
-// Nearby hospitals button
-hospitalBtn.onclick = () => {
-  window.open("https://www.google.com/maps/search/hospitals+near+me", "_blank");
-};
+// Nearby hospitals
+hospitalBtn.onclick = ()=>window.open("https://www.google.com/maps/search/hospitals+near+me","_blank");
 
 // Show chat after splash
-window.addEventListener("load", () => {
-  setTimeout(() => {
-    document.getElementById("splash").style.display = "none";
+window.addEventListener("load", ()=>{
+  setTimeout(()=>{
+    document.getElementById("splash").style.display="none";
     document.getElementById("chatContainer").classList.remove("hidden");
-  }, 3500); // splash visible for ~3.5s
+  },3500);
 });
