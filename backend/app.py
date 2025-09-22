@@ -17,7 +17,7 @@ app = FastAPI(title="SenseAI Backend")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 HF_TOKEN = os.getenv("HF_API_TOKEN", "")  # put your Hugging Face token here (optional but recommended)
-HF_MODEL = os.getenv("HF_MODEL", "google/flan-t5-small")  # model to call (you can change)
+HF_MODEL = os.getenv("HF_MODEL", "google/flan-t5-base")  # model to call (you can change)
 
 # --- request model -------------------------------------------------------
 class ChatRequest(BaseModel):
@@ -200,3 +200,4 @@ def image_log(payload: dict):
 @app.get("/healthz")
 def healthz():
     return {"status": "ok"}
+
