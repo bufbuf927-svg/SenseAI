@@ -203,3 +203,8 @@ function adjustLayout(){
 }
 window.addEventListener("resize", adjustLayout);
 adjustLayout();
+// Hospital button functionality
+document.getElementById("hospitalBtn").onclick = () => {
+  window.open("https://www.google.com/maps/search/hospitals+near+me", "_blank");
+};
+
