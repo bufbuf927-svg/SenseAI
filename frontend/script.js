@@ -30,7 +30,7 @@ function revealApp(){
     appEl.classList.add("revealed");
     appEl.setAttribute("aria-hidden","false");
     setTimeout(()=> splash.style.display = "none", 700);
-  }, 900);
+  }, 2500);
 }
 revealApp();
 
@@ -206,3 +206,4 @@ function adjustLayout(){
 }
 window.addEventListener("resize", adjustLayout);
 adjustLayout();
+
