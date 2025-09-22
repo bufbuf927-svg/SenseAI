@@ -3,47 +3,51 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SenseAI Chatbot</title>
+  <title>Sense AI</title>
   <link rel="stylesheet" href="styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
   <script src="script.js" defer></script>
 </head>
 <body>
-  <!-- Splash Screen -->
-  <div id="splash">
-    <img src="logo.png" alt="SenseAI Logo" class="splash-logo" />
-    <h1 class="splash-title">SenseAI</h1>
-  </div>
-
-  <!-- Main Chat UI -->
-  <div id="chatContainer" class="hidden">
-    <header>
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="logo-section">
       <img src="logo.png" alt="logo" class="header-logo"/>
-      <h2>SenseAI Health Assistant</h2>
-    </header>
-
-    <div id="messages" class="messages"></div>
-
-    <div class="controls">
-      <!-- Language selector -->
-      <select id="langSelect">
-        <option value="en">English</option>
-        <option value="hi">Hindi</option>
-        <option value="te">Telugu</option>
-        <option value="ta">Tamil</option>
-        <option value="ml">Malayalam</option>
-        <option value="bn">Bengali</option>
-      </select>
-
-      <!-- Input + Buttons -->
-      <input id="textInput" type="text" placeholder="Type your message..." />
-      <button id="sendBtn">Send</button>
-      <button id="imgBtn">📷</button>
-      <input type="file" id="fileInput" accept="image/*" hidden />
+      <h2>SENSE AI</h2>
     </div>
 
-    <!-- Floating hospital button -->
-    <button id="hospitalBtn" title="Find Nearby Hospitals">🏥</button>
+    <!-- Language Selector -->
+    <select id="langSelect" class="lang-select">
+      <option value="en">English</option>
+      <option value="hi">Hindi</option>
+      <option value="te">Telugu</option>
+      <option value="ta">Tamil</option>
+      <option value="ml">Malayalam</option>
+      <option value="bn">Bengali</option>
+    </select>
+
+    <!-- Hospital Button -->
+    <button id="hospitalBtn" class="hospital-btn">FIND NEARBY HOSPITALS</button>
+  </header>
+
+  <!-- Chat Container -->
+  <div id="chatContainer">
+    <div id="messages" class="messages">
+      <!-- Background branding -->
+      <div class="center-logo">
+        <img src="logo.png" alt="Sense AI Logo"/>
+        <h3>Sense <span>AI</span></h3>
+        <p>Your Health, Understood</p>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button id="imgBtn" class="circle-btn">📷</button>
+      <input id="fileInput" type="file" accept="image/*" hidden />
+      <input id="textInput" type="text" placeholder="Type message here..." />
+      <button id="sendBtn" class="circle-btn">➤</button>
+    </div>
   </div>
 </body>
 </html>
