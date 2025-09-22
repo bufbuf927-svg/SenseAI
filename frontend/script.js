@@ -1,5 +1,5 @@
 // =======================
-// CONFIG - update API_URL
+// CONFIG - set your backend URL
 // =======================
 const API_URL = "https://REPLACE_WITH_RENDER_BACKEND_URL"; // <-- set to your Render backend URL
 const MODEL_PATH = "model/model.json";
@@ -21,8 +21,8 @@ let model = null;
 let labels = [];
 
 // -----------------------
-// splash -> reveal app
-// -----------------------
+// splash -> reveal app (longer)
+ // keep splash for 2.5s then fade
 function revealApp(){
   setTimeout(()=> {
     splash.style.transition = "opacity .6s ease";
@@ -30,7 +30,7 @@ function revealApp(){
     appEl.classList.add("revealed");
     appEl.setAttribute("aria-hidden","false");
     setTimeout(()=> splash.style.display = "none", 700);
-  }, 2500);
+  }, 2500); // 2.5 seconds
 }
 revealApp();
 
@@ -101,7 +101,9 @@ async function classifyFile(file){
   img.src = dataUrl;
   await img.decode();
 
-  const tensor = tf.browser.fromPixels(img).resizeNearestNeighbor([224,224]).expandDims(0).toFloat().div(255.0);
+  // ensure square resize uses metadata size if available (many TM models use 224)
+  const size = 224;
+  const tensor = tf.browser.fromPixels(img).resizeNearestNeighbor([size,size]).expandDims(0).toFloat().div(255.0);
   const preds = await model.predict(tensor).data();
   const topIdx = preds.indexOf(Math.max(...preds));
   const confidence = preds[topIdx];
@@ -133,7 +135,7 @@ sendBtn.addEventListener("click", async ()=>{
   }
 });
 
-// send on Enter
+// Enter sends
 textInput.addEventListener("keydown", (e)=>{ if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); sendBtn.click(); } });
 
 // -----------------------
@@ -149,7 +151,7 @@ fileInput.addEventListener("change", async (ev)=>{
   if(result){
     const html = `🩺 <strong>${result.label}</strong> (${(result.confidence*100).toFixed(1)}%)<br><small>Not a diagnosis. Consult a clinician.</small>`;
     addBubble(html, "bot", true);
-    // log to backend (best-effort)
+    // best-effort log to backend
     fetch(`${API_URL}/image-log`, { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(result) }).catch(()=>{});
   } else {
     addBubble("⚠️ Could not classify the image locally.", "bot");
@@ -158,12 +160,10 @@ fileInput.addEventListener("change", async (ev)=>{
 });
 
 // -----------------------
-// hospital quick: geolocation -> open Google Maps search
+// hospital quick: geolocation -> Google Maps search
 // -----------------------
 function openGoogleMapsSearch(lat, lon){
-  // prefer direct directions if lat/lon provided, else generic search
   if(lat && lon){
-    // use search for nearby hospitals centered on coordinates
     const q = `https://www.google.com/maps/search/hospitals+near+me/@${lat},${lon},13z`;
     window.open(q, "_blank");
   } else {
@@ -171,7 +171,7 @@ function openGoogleMapsSearch(lat, lon){
   }
 }
 
-async function locateAndOpenMaps(){
+function locateAndOpenMaps(){
   addBubble("🔎 Locating nearest hospitals...", "bot");
   if(!navigator.geolocation){
     addBubble("⚠️ Geolocation not available. Opening general search.", "bot");
@@ -191,19 +191,15 @@ async function locateAndOpenMaps(){
   }, { enableHighAccuracy:true, timeout:10000 });
 }
 
-hospitalQuickBtn.addEventListener("click", locateAndOpenMaps);
-hospitalFloat.addEventListener("click", locateAndOpenMaps);
+hospitalQuickBtn && hospitalQuickBtn.addEventListener("click", locateAndOpenMaps);
+hospitalFloat && hospitalFloat.addEventListener("click", locateAndOpenMaps);
 
 // -----------------------
 // responsive tweaks
 // -----------------------
 function adjustLayout(){
-  if(window.innerWidth < 720){
-    document.querySelector(".app").style.maxWidth = "100%";
-  } else {
-    document.querySelector(".app").style.maxWidth = "900px";
-  }
+  if(window.innerWidth < 720) document.querySelector(".app").style.maxWidth = "100%";
+  else document.querySelector(".app").style.maxWidth = "900px";
 }
 window.addEventListener("resize", adjustLayout);
 adjustLayout();
-
