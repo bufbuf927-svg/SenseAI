@@ -4,26 +4,41 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>SenseAI — Health Chat</title>
+
   <link rel="stylesheet" href="styles.css" />
   <!-- TensorFlow.js -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js"></script>
 </head>
 <body>
-  <div class="app">
+  <!-- Splash -->
+  <div id="splash" class="splash">
+    <img id="splashLogo" src="assets/logo.png" alt="SenseAI" class="splash-logo" />
+    <div class="splash-text">SenseAI — Your health, understood</div>
+    <div class="splash-loader" aria-hidden="true"></div>
+  </div>
+
+  <!-- App -->
+  <div id="app" class="app" aria-hidden="true">
     <header class="topbar">
-      <div class="title">SenseAI · Healthcare Chat</div>
+      <div class="left">
+        <img src="assets/logo.png" alt="SenseAI" class="top-logo" />
+        <div class="title">SenseAI</div>
+      </div>
+      <div class="right">
+        <button id="hospitalQuickBtn" class="hospital-quick" title="Find nearby hospitals">🏥 Nearby</button>
+      </div>
     </header>
 
     <main class="chat-area">
-      <div id="messages" class="messages"></div>
+      <div id="messages" class="messages" role="log" aria-live="polite"></div>
     </main>
 
     <footer class="input-bar">
       <input id="fileInput" type="file" accept="image/*" style="display:none" />
-      <button id="imgBtn" title="Upload image" class="icon-btn">📷</button>
-      <input id="textInput" class="text-input" placeholder="Type a message..." />
-      <button id="sendBtn" class="send-btn">➤</button>
-      <select id="langSelect" title="Language" class="lang-select">
+      <button id="imgBtn" class="icon-btn" title="Upload image">📷</button>
+      <input id="textInput" class="text-input" placeholder="Type a message..." aria-label="Message" />
+      <button id="sendBtn" class="send-btn" aria-label="Send">➤</button>
+      <select id="langSelect" class="lang-select" title="Language">
         <option value="en">EN</option>
         <option value="hi">HI</option>
         <option value="te">TE</option>
@@ -31,6 +46,9 @@
         <option value="bn">BN</option>
       </select>
     </footer>
+
+    <!-- floating hospital button (mobile/desktop) -->
+    <button id="hospitalFloat" class="hospital-float" title="Nearest hospitals">🏥</button>
   </div>
 
   <script src="script.js"></script>
