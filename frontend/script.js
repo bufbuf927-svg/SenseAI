@@ -92,7 +92,7 @@ sendBtn.onclick = async () => {
     addBubble(data.reply,"bot",true);
   }catch(e){
     hideTyping();
-    addBubble("⚠️ Server error.","bot");
+    addBubble("⏳ Server waking up… please wait","bot");
   }
 };
 
@@ -124,4 +124,5 @@ window.addEventListener("load", ()=>{
     document.getElementById("chatContainer").classList.remove("hidden");
   },3500);
 });
+
 
