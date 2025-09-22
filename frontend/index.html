@@ -4,15 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>SenseAI — Health Chat</title>
-
   <link rel="stylesheet" href="styles.css" />
   <!-- TensorFlow.js -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js"></script>
 </head>
 <body>
   <!-- Splash -->
-  <div id="splash" class="splash">
-    <img id="splashLogo" src="assets/logo.png" alt="SenseAI" class="splash-logo" />
+  <div id="splash" class="splash" role="dialog" aria-label="Loading">
+    <img id="splashLogo" src="assets/logo.png" alt="SenseAI logo" class="splash-logo" />
     <div class="splash-text">SenseAI — Your health, understood</div>
     <div class="splash-loader" aria-hidden="true"></div>
   </div>
@@ -21,7 +20,7 @@
   <div id="app" class="app" aria-hidden="true">
     <header class="topbar">
       <div class="left">
-        <img src="assets/logo.png" alt="SenseAI" class="top-logo" />
+        <img src="assets/logo.png" alt="SenseAI logo" class="top-logo" />
         <div class="title">SenseAI</div>
       </div>
       <div class="right">
@@ -29,7 +28,7 @@
       </div>
     </header>
 
-    <main class="chat-area">
+    <main class="chat-area" role="main">
       <div id="messages" class="messages" role="log" aria-live="polite"></div>
     </main>
 
@@ -47,7 +46,7 @@
       </select>
     </footer>
 
-    <!-- floating hospital button (mobile/desktop) -->
+    <!-- floating hospital button -->
     <button id="hospitalFloat" class="hospital-float" title="Nearest hospitals">🏥</button>
   </div>
 
