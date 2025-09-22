@@ -1,147 +1,136 @@
-/* General Reset */
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
 
 body {
-  background: #f4f7fb;
   display: flex;
   flex-direction: column;
   height: 100vh;
-  overflow: hidden;
+  background: #e6f9f4;
 }
 
-/* Splash Screen */
-#splash {
-  position: fixed;
-  inset: 0;
-  background: #ffffff;
+/* Header */
+.app-header {
+  background: linear-gradient(90deg, #0f9d58, #8bc34a);
+  padding: 10px 15px;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  z-index: 2000;
-  animation: fadeOut 2.5s ease forwards;
-  animation-delay: 3s;
-}
-.splash-logo {
-  width: 180px;
-  height: auto;
-  animation: popIn 2s ease;
-}
-.splash-title {
-  margin-top: 12px;
-  font-size: 2rem;
-  color: #1976d2;
-}
-@keyframes popIn {
-  0% { transform: scale(0.3); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-@keyframes fadeOut {
-  0% { opacity: 1; }
-  100% { opacity: 0; visibility: hidden; }
 }
 
-/* Chat container */
-#chatContainer {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background: #fff url("logo.png") no-repeat center center;
-  background-size: 250px;
-  opacity: 0.92;
-}
-.hidden { display: none; }
-
-header {
+.logo-title {
   display: flex;
   align-items: center;
-  background: #1976d2;
-  color: #fff;
-  padding: 10px;
+  gap: 10px;
 }
-.header-logo {
+
+.logo {
+  height: 40px;
   width: 40px;
-  margin-right: 10px;
+  border-radius: 8px;
 }
-.messages {
+
+.app-header h1 {
+  font-size: 20px;
+  color: white;
+}
+
+.hospital-btn {
+  background: linear-gradient(90deg, #76c893, #a8e063);
+  border: none;
+  border-radius: 30px;
+  padding: 8px 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* Chat area */
+.chat-container {
   flex: 1;
-  overflow-y: auto;
+  background: url("background.png") center/cover no-repeat;
   padding: 15px;
+  overflow-y: auto;
 }
+
+.messages {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Bubbles */
 .bubble {
-  padding: 10px 14px;
-  border-radius: 18px;
-  margin-bottom: 10px;
-  max-width: 75%;
+  max-width: 70%;
+  padding: 10px 15px;
+  border-radius: 20px;
+  font-size: 15px;
   word-wrap: break-word;
 }
+
 .bubble.user {
-  background: #1976d2;
-  color: #fff;
+  background: #00c853;
+  color: white;
   align-self: flex-end;
+  border-bottom-right-radius: 5px;
 }
+
 .bubble.bot {
-  background: #e3e3e3;
-  color: #000;
+  background: white;
+  color: black;
   align-self: flex-start;
-}
-.bubble img.thumb {
-  max-width: 100px;
-  border-radius: 10px;
+  border-bottom-left-radius: 5px;
 }
 
-/* Typing animation */
-.bubble.typing {
-  background: #e3e3e3;
-  font-style: italic;
-}
-.bubble.typing::after {
-  content: " •••";
-  animation: dots 1s steps(3, end) infinite;
-}
-@keyframes dots {
-  0%, 20% { content: " •"; }
-  40% { content: " ••"; }
-  60%, 100% { content: " •••"; }
-}
-
-/* Controls */
-.controls {
+/* Input bar */
+.input-bar {
   display: flex;
-  padding: 10px;
-  background: #f1f1f1;
   align-items: center;
+  padding: 10px;
+  gap: 10px;
+  background: #e6f9f4;
+  position: sticky;
+  bottom: 15px; /* keep it above mobile browser bottom */
 }
-.controls select, .controls input {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  margin-right: 5px;
-  flex: 1;
-}
-.controls button {
-  padding: 8px 12px;
-  border: none;
-  background: #1976d2;
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-}
-.controls button:hover { background: #125ea3; }
 
-/* Floating hospital button */
-#hospitalBtn {
-  position: fixed;
-  bottom: 80px;
-  right: 20px;
-  background: #e53935;
+#textInput {
+  flex: 1;
+  padding: 10px 15px;
+  border-radius: 20px;
   border: none;
-  padding: 15px;
-  border-radius: 50%;
-  color: white;
-  font-size: 22px;
-  cursor: pointer;
-  box-shadow: 0px 4px 6px rgba(0,0,0,0.2);
-  z-index: 1500;
+  outline: none;
+  background: #00c853;
+  color: black;
 }
-#hospitalBtn:hover { background: #b71c1c; }
+
+#textInput::placeholder {
+  color: black;
+  opacity: 0.7;
+}
+
+.circle-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  background: #00c853;
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .app-header h1 {
+    font-size: 16px;
+  }
+  .bubble {
+    font-size: 14px;
+  }
+}
