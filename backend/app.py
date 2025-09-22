@@ -1,203 +1,160 @@
-# backend/app.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import os
-import requests
-import re
-import logging
-from typing import Optional
+import os, requests
+from deep_translator import GoogleTranslator
 
-# --- logging --------------------------------------------------------------
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("senseai-backend")
-
-# --- app init ------------------------------------------------------------
-app = FastAPI(title="SenseAI Backend")
+app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-HF_TOKEN = os.getenv("HF_API_TOKEN", "")  # put your Hugging Face token here (optional but recommended)
-HF_MODEL = os.getenv("HF_MODEL", "google/flan-t5-base")  # model to call (you can change)
+GEMINI_KEY = os.getenv("GEMINI_API_KEY", "")
 
-# --- request model -------------------------------------------------------
 class ChatRequest(BaseModel):
     message: str
     lang: str = "en"
 
-# --- helper: call HF inference API --------------------------------------
-def call_hf_inference(text: str, max_new_tokens: int = 200) -> Optional[str]:
-    """
-    Call Hugging Face Inference API for a text generation model.
-    Returns generated text or None on failure / no token.
-    """
-    if not HF_TOKEN:
-        logger.debug("HF_TOKEN not set — skipping HF inference.")
+def call_gemini(text: str):
+    if not GEMINI_KEY:
         return None
-    url = f"https://api-inference.huggingface.co/models/{HF_MODEL}"
-    headers = {"Authorization": f"Bearer {HF_TOKEN}"}
-    payload = {
-        "inputs": text,
-        "parameters": {"max_new_tokens": max_new_tokens, "temperature": 0.3, "do_sample": False},
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_KEY}"
+    headers = {"Content-Type": "application/json"}
+    data = {
+        "contents": [{"parts": [{"text": text}]}]
     }
     try:
-        resp = requests.post(url, headers=headers, json=payload, timeout=30)
-        if resp.status_code != 200:
-            logger.warning("HF inference returned status %s: %s", resp.status_code, resp.text)
-            return None
-        data = resp.json()
-        # HF sometimes returns a list of dicts with generated_text
-        if isinstance(data, list) and len(data) > 0 and isinstance(data[0], dict):
-            if "generated_text" in data[0]:
-                return data[0]["generated_text"]
-            # some endpoints return {'generated_text': '...'} inside list
-        if isinstance(data, dict) and "generated_text" in data:
-            return data["generated_text"]
-        # Sometimes HF returns plain string or other shape
-        if isinstance(data, str):
-            return data
-        # try fallback parsing
-        if isinstance(data, list) and isinstance(data[0], str):
-            return data[0]
-        logger.warning("Unexpected HF response shape: %s", type(data))
+        resp = requests.post(url, headers=headers, json=data, timeout=30)
+        if resp.status_code == 200:
+            out = resp.json()
+            return out["candidates"][0]["content"]["parts"][0]["text"]
     except Exception as e:
-        logger.exception("Error calling HF Inference: %s", e)
+        print("Gemini error:", e)
     return None
 
-# --- helper: rule based replies -----------------------------------------
-def rule_based_reply(text: str) -> Optional[str]:
-    """
-    Specific, conservative rule-based replies.
-    Return None when we want to allow the NLP model to handle the query.
-    Use lower-cased text for matching.
-    """
+def rule_based_reply(text: str):
     t = text.lower()
 
-    # Emergency / red flags (high priority)
-    emergency_phrases = [
-        "chest pain", "difficulty breathing", "shortness of breath",
-        "severe bleeding", "unconscious", "loss of consciousness",
-        "sudden weakness", "sudden numbness", "slurred speech",
-        "severe abdominal pain", "severe headache", "seizure", "fainting",
-        "not breathing", "no pulse"
-    ]
-    for p in emergency_phrases:
-        if p in t:
-            return (
-                "⚠️ If someone has sudden chest pain, severe difficulty breathing, "
-                "loss of consciousness, seizure or heavy bleeding — call emergency services immediately (e.g., 112). "
-                "This is not a diagnosis. Seek urgent medical attention."
-            )
+    # Greetings / general
+    if any(word in t for word in ["hello", "hi", "hey", "good morning", "good evening"]):
+        return "👋 Hello! I'm SenseAI, your health assistant. How can I help you today?"
+    if "how are you" in t:
+        return "I'm doing well and ready to help you. How are you feeling today?"
 
-    # Suicidal or self-harm — high priority (non-judgmental, encourage help)
-    if re.search(r"\b(suicid|kill myself|end my life|self harm|hurting myself)\b", t):
-        return (
-            "If you are thinking about harming yourself, please seek help immediately. "
-            "Contact local emergency services or a crisis hotline right now and tell someone you trust. "
-            "You are not alone. If you are in India, dial 112, or contact a local crisis helpline."
-        )
+    # Fever / flu
+    if "fever" in t:
+        return "Fever may signal infections like flu, malaria, or dengue. Rest, hydrate, and see a doctor if severe or persistent."
+    if "cold" in t or "flu" in t:
+        return "Common cold/flu often improves with rest and fluids. Seek medical advice if high fever, chest pain, or difficulty breathing."
+    if "temperature" in t:
+        return "A normal body temperature is around 36.5–37.5°C. Anything above 38°C is considered fever."
 
-    # Clear greetings
-    if re.search(r"\b(hi|hello|hey|good morning|good afternoon|good evening)\b", t):
-        return "👋 Hello! I can help with symptoms, vaccine info, and image checks. How can I assist you?"
+    # Cough / respiratory
+    if "cough" in t:
+        return "Cough can be viral, allergic, or bacterial. If it lasts more than 2 weeks or includes blood, consult a doctor."
+    if "asthma" in t:
+        return "Asthma causes breathing difficulty. Keep inhalers handy and avoid triggers like dust, smoke, or cold air."
+    if "breathing" in t or "shortness of breath" in t:
+        return "Shortness of breath can be serious. Please seek immediate medical attention if sudden or severe."
 
-    # Symptom-specific (conservative)
-    if re.search(r"\b(feve?r|temperature|febrile)\b", t):
-        return "Fever often indicates infection. Rest, keep hydrated, and measure temperature. If temperature is very high (>39°C), persistent, or the person is very unwell, seek medical care."
+    # Stomach / digestion
+    if "diarrhea" in t or "loose motion" in t:
+        return "Stay hydrated with clean fluids. Oral rehydration solution (ORS) is recommended. See a doctor if severe."
+    if "vomiting" in t or "nausea" in t:
+        return "Vomiting may be due to infection or food poisoning. Sip fluids slowly and seek care if persistent."
+    if "stomach pain" in t or "abdominal pain" in t:
+        return "Mild stomach pain may be due to indigestion. Severe or persistent pain requires medical evaluation."
 
-    if re.search(r"\b(cough|sore throat|hoarseness|shortness of breath|wheez)\b", t):
-        return "Coughs have many causes (viral, bacterial, allergies). If cough lasts >2 weeks, is getting worse, or there's blood or severe breathlessness, see a clinician."
+    # Chronic diseases
+    if "diabetes" in t:
+        return "Diabetes requires regular sugar monitoring, healthy diet, and exercise. Consult a doctor for medication guidance."
+    if "blood pressure" in t or "hypertension" in t:
+        return "High BP can damage heart and kidneys. Reduce salt, manage stress, and check with a doctor regularly."
+    if "cholesterol" in t:
+        return "High cholesterol increases heart disease risk. Eat less fried food, exercise, and consider regular checkups."
 
-    if re.search(r"\b(diarrh|vomit|nausea|stomach pain)\b", t):
-        return "For vomiting/diarrhoea: stay hydrated (oral rehydration), rest, and seek care if symptoms are severe, include high fever, blood, or signs of dehydration."
+    # Women's health
+    if "period" in t or "menstruation" in t:
+        return "Menstrual cramps can be eased with warm compress, hydration, and rest. If very painful, consult a gynecologist."
+    if "pregnant" in t or "pregnancy" in t:
+        return "During pregnancy: eat nutritious food, take prenatal vitamins, and attend regular checkups."
+    if "breastfeeding" in t:
+        return "Breastfeeding is healthy for both mother and baby. Drink fluids, eat balanced meals, and rest when possible."
 
-    if re.search(r"\b(rash|skin rash|hives|itch)\b", t):
-        return "Rashes can be due to infections, allergies or other causes. Keep the area clean, avoid irritants, and seek medical advice if it spreads rapidly or is accompanied by fever."
+    # Kids health
+    if "child vaccine" in t or "vaccination" in t:
+        return "Children should get vaccines as per schedule: polio, measles, DPT, hepatitis, etc. Ask your doctor for the full chart."
+    if "measles" in t:
+        return "Measles symptoms: fever, rash, cough, red eyes. Vaccination prevents it. Seek medical care if suspected."
 
-    if re.search(r"\b(vaccine|vaccination|immunization|immunise|schedule)\b", t):
-        return (
-            "Vaccination protects against many diseases. For children, follow your national immunization schedule "
-            "— commonly including vaccines like BCG, DTP, Polio, Measles. For specific schedules in your country, "
-            "check local health authority guidance or ask for details."
-        )
+    # Infections
+    if "dengue" in t:
+        return "Dengue signs: high fever, rash, joint pain. Avoid self-medication. Seek medical help immediately."
+    if "malaria" in t:
+        return "Malaria: fever, chills, sweating. Prevent mosquito bites and see a doctor for testing if suspected."
+    if "covid" in t or "corona" in t:
+        return "COVID-19 symptoms: fever, cough, loss of taste/smell, breathing issues. Get tested if suspected."
 
-    if re.search(r"\b(pregnan|pregnancy|deliver|labor|contraction)\b", t):
-        return "Pregnancy-related questions are important — please consult an obstetrician/midwife or your local health clinic for personalized care."
+    # First aid
+    if "headache" in t:
+        return "Mild headache: rest, hydrate, avoid screen strain. Severe or sudden headache needs urgent medical care."
+    if "burn" in t:
+        return "For small burns: cool with running water for 10 minutes. Do not apply ice or toothpaste."
+    if "cut" in t or "wound" in t:
+        return "Wash gently with clean water, apply antiseptic, and cover. Seek care if deep or bleeding heavily."
 
-    if re.search(r"\b(poison|ingest|poisoning|swallowed)\b", t):
-        return "If someone swallowed a poisonous substance, call your local poison control number or emergency services immediately."
+    # Lifestyle
+    if "exercise" in t:
+        return "Regular exercise (30 min daily) helps control weight, BP, and stress."
+    if "diet" in t or "food" in t:
+        return "Eat a balanced diet: vegetables, fruits, whole grains, lean proteins. Limit junk food and sugar."
+    if "water" in t or "drink" in t:
+        return "Drink at least 2–3 liters of safe water daily to stay hydrated."
+    if "sleep" in t:
+        return "Adults need 7–9 hours of quality sleep. Maintain a regular sleep schedule."
 
-    # Medication / side-effects
-    if re.search(r"\b(side effect|allergic|reaction|rash after|medication)\b", t):
-        return "If you suspect a medication side-effect, stop the medication if severe and contact a healthcare professional or poison control for advice."
+    # Mental health
+    if "stress" in t or "anxiety" in t:
+        return "Try relaxation, meditation, and regular breaks. If severe, seek counseling."
+    if "depression" in t:
+        return "Depression is treatable. Please talk to a trusted person or mental health professional."
 
-    # If question is short and not recognized, prefer rules only for short phrases
-    # otherwise let the NLP handle it (return None)
-    # e.g., "What is malaria?" -> None (let model generate an informative answer)
-    short_query = len(t.split()) <= 3
-    if short_query and re.search(r"\b(what|who|where|when|why|how)\b", t):
-        return None
+    # Emergency
+    if "heart attack" in t or "chest pain" in t:
+        return "⚠️ Chest pain or suspected heart attack is a medical emergency. Call emergency services immediately."
+    if "stroke" in t:
+        return "Stroke signs: sudden weakness, slurred speech, facial droop. Seek emergency care immediately."
 
-    # default: no rule matched -> return None so HF can answer
+    # Default
     return None
 
-# --- routes --------------------------------------------------------------
+
 @app.post("/chat")
 def chat(req: ChatRequest):
-    # translate to English if needed (best-effort)
+    # Translate user input to English
     text_en = req.message
-    if req.lang and req.lang != "en":
+    if req.lang != "en":
         try:
-            from deep_translator import GoogleTranslator
             text_en = GoogleTranslator(source="auto", target="en").translate(req.message)
-        except Exception as e:
-            logger.warning("Translation to English failed: %s", e)
-            text_en = req.message
+        except:
+            pass
 
-    # 1) Try rule-based (conservative, high-priority)
+    # Rule-based first
     reply_en = rule_based_reply(text_en)
-    source = "rule" if reply_en else None
 
-    # 2) If rules did not match, call HF (if token available)
+    # Fallback to Gemini
     if not reply_en:
-        ai = call_hf_inference(text_en)
-        if ai:
-            reply_en = ai
-            source = "hf"
+        ai = call_gemini(text_en)
+        reply_en = ai or "I can help with symptoms, vaccines, and image checks."
 
-    # 3) Final fallback
-    if not reply_en:
-        reply_en = (
-            "I can help with symptoms, vaccines, and interpreting uploaded images. "
-            "Could you give more detail or upload an image? This is not medical advice."
-        )
-        source = "fallback"
-
-    # translate back to user's language if needed
+    # Translate back to user’s language
     reply_out = reply_en
-    if req.lang and req.lang != "en":
+    if req.lang != "en":
         try:
-            from deep_translator import GoogleTranslator
             reply_out = GoogleTranslator(source="en", target=req.lang).translate(reply_en)
-        except Exception as e:
-            logger.warning("Translation to user language failed: %s", e)
-            reply_out = reply_en
+        except:
+            pass
 
-    # include short disclaimer always
-    disclaimer = "\n\n⚠️ This is not a medical diagnosis. For personal medical advice, consult a licensed clinician."
-    # some HF answers already may contain disclaimers; keep ours short
-    if disclaimer.strip() not in reply_out:
-        reply_out = reply_out.strip() + disclaimer
-
-    logger.info("CHAT: source=%s input=%s reply=%s", source, text_en, (reply_en or "")[:200])
-    return {"reply": reply_out, "source": source}
-
-@app.post("/image-log")
-def image_log(payload: dict):
-    # simple logging; extend to persistent storage if needed
-    logger.info("Image log: %s", payload)
-    return {"ok": True}
+    return {"reply": reply_out}
 
 @app.get("/healthz")
 def healthz():
     return {"status": "ok"}
-
