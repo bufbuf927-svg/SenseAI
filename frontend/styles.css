@@ -23,7 +23,7 @@ body {
   animation-delay: 3s;
 }
 .splash-logo {
-  width: 160px;
+  width: 180px;
   height: auto;
   animation: popIn 2s ease;
 }
@@ -47,8 +47,8 @@ body {
   flex-direction: column;
   height: 100%;
   background: #fff url("logo.png") no-repeat center center;
-  background-size: 200px;
-  opacity: 0.95; /* slightly higher opacity */
+  background-size: 250px;
+  opacity: 0.92;
 }
 .hidden { display: none; }
 
@@ -86,8 +86,23 @@ header {
   align-self: flex-start;
 }
 .bubble img.thumb {
-  max-width: 120px;
+  max-width: 100px;
   border-radius: 10px;
+}
+
+/* Typing animation */
+.bubble.typing {
+  background: #e3e3e3;
+  font-style: italic;
+}
+.bubble.typing::after {
+  content: " •••";
+  animation: dots 1s steps(3, end) infinite;
+}
+@keyframes dots {
+  0%, 20% { content: " •"; }
+  40% { content: " ••"; }
+  60%, 100% { content: " •••"; }
 }
 
 /* Controls */
@@ -95,12 +110,14 @@ header {
   display: flex;
   padding: 10px;
   background: #f1f1f1;
+  align-items: center;
 }
 .controls select, .controls input {
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 8px;
   margin-right: 5px;
+  flex: 1;
 }
 .controls button {
   padding: 8px 12px;
@@ -115,7 +132,7 @@ header {
 /* Floating hospital button */
 #hospitalBtn {
   position: fixed;
-  bottom: 20px;
+  bottom: 80px;
   right: 20px;
   background: #e53935;
   border: none;
