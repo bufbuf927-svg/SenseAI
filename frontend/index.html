@@ -1,55 +1,49 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SenseAI — Health Chat</title>
-  <link rel="stylesheet" href="styles.css" />
-  <!-- TensorFlow.js -->
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SenseAI Chatbot</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script src="script.js" defer></script>
 </head>
 <body>
-  <!-- Splash -->
-  <div id="splash" class="splash" role="dialog" aria-label="Loading">
-    <img id="splashLogo" src="assets/logo.png" alt="SenseAI logo" class="splash-logo" />
-    <div class="splash-text">SenseAI — Your health, understood</div>
-    <div class="splash-loader" aria-hidden="true"></div>
+  <!-- Splash Screen -->
+  <div id="splash">
+    <img src="logo.png" alt="SenseAI Logo" class="splash-logo" />
+    <h1 class="splash-title">SenseAI</h1>
   </div>
 
-  <!-- App -->
-  <div id="app" class="app" aria-hidden="true">
-    <header class="topbar">
-      <div class="left">
-        <img src="assets/logo.png" alt="SenseAI logo" class="top-logo" />
-        <div class="title">SenseAI</div>
-      </div>
-      <div class="right">
-        <button id="hospitalQuickBtn" class="hospital-quick" title="Find nearby hospitals">🏥 Nearby</button>
-      </div>
+  <!-- Main Chat UI -->
+  <div id="chatContainer" class="hidden">
+    <header>
+      <img src="logo.png" alt="logo" class="header-logo"/>
+      <h2>SenseAI Health Assistant</h2>
     </header>
 
-    <main class="chat-area" role="main">
-      <div id="messages" class="messages" role="log" aria-live="polite"></div>
-    </main>
+    <div id="messages" class="messages"></div>
 
-    <footer class="input-bar">
-      <input id="fileInput" type="file" accept="image/*" style="display:none" />
-      <button id="imgBtn" class="icon-btn" title="Upload image">📷</button>
-      <input id="textInput" class="text-input" placeholder="Type a message..." aria-label="Message" />
-      <button id="sendBtn" class="send-btn" aria-label="Send">➤</button>
-      <select id="langSelect" class="lang-select" title="Language">
-        <option value="en">EN</option>
-        <option value="hi">HI</option>
-        <option value="te">TE</option>
-        <option value="ta">TA</option>
-        <option value="bn">BN</option>
+    <div class="controls">
+      <!-- Language selector -->
+      <select id="langSelect">
+        <option value="en">English</option>
+        <option value="hi">Hindi</option>
+        <option value="te">Telugu</option>
+        <option value="ta">Tamil</option>
+        <option value="ml">Malayalam</option>
+        <option value="bn">Bengali</option>
       </select>
-    </footer>
 
-    <!-- floating hospital button -->
-    <button id="hospitalFloat" class="hospital-float" title="Nearest hospitals">🏥</button>
+      <!-- Input + Buttons -->
+      <input id="textInput" type="text" placeholder="Type your message..." />
+      <button id="sendBtn">Send</button>
+      <button id="imgBtn">📷</button>
+      <input type="file" id="fileInput" accept="image/*" hidden />
+    </div>
+
+    <!-- Floating hospital button -->
+    <button id="hospitalBtn" title="Find Nearby Hospitals">🏥</button>
   </div>
-
-  <script src="script.js"></script>
 </body>
 </html>
