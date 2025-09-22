@@ -1,5 +1,5 @@
 // Backend config
-const API_URL = "https://senseai-1.onrender.com";
+const API_URL = "https://senseai-backend.onrender.com";
 const MODEL_PATH = "model/model.json";
 const LABELS_PATH = "model/metadata.json";
 
@@ -124,5 +124,6 @@ window.addEventListener("load", ()=>{
     document.getElementById("chatContainer").classList.remove("hidden");
   },3500);
 });
+
 
 
