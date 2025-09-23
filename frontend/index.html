@@ -5,49 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sense AI</title>
   <link rel="stylesheet" href="styles.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
   <script src="script.js" defer></script>
 </head>
 <body>
-  <!-- Top Bar -->
+  <!-- Header -->
   <header class="topbar">
-    <div class="logo-section">
-      <img src="logo.png" alt="logo" class="header-logo"/>
-      <h2>SENSE AI</h2>
+    <div class="logo-area">
+      <img src="logo.png" alt="Sense AI Logo" class="logo"/>
+      <h1>SENSE AI</h1>
     </div>
-
-    <!-- Language Selector -->
-    <select id="langSelect" class="lang-select">
-      <option value="en">English</option>
-      <option value="hi">Hindi</option>
-      <option value="te">Telugu</option>
-      <option value="ta">Tamil</option>
-      <option value="ml">Malayalam</option>
-      <option value="bn">Bengali</option>
-    </select>
-
-    <!-- Hospital Button -->
-    <button id="hospitalBtn" class="hospital-btn">FIND NEARBY HOSPITALS</button>
+    <div class="actions">
+      <select id="langSelect" class="lang-select">
+        <option value="en">English</option>
+        <option value="hi">Hindi</option>
+        <option value="te">Telugu</option>
+        <option value="ta">Tamil</option>
+        <option value="ml">Malayalam</option>
+        <option value="bn">Bengali</option>
+      </select>
+      <button id="hospitalBtn" class="hospital-btn">Find Nearby Hospitals</button>
+    </div>
   </header>
 
-  <!-- Chat Container -->
-  <div id="chatContainer">
-    <div id="messages" class="messages">
-      <!-- Background branding -->
-      <div class="center-logo">
-        <img src="logo.png" alt="Sense AI Logo"/>
-        <h3>Sense <span>AI</span></h3>
-        <p>Your Health, Understood</p>
-      </div>
-    </div>
+  <!-- Chat container -->
+  <main id="chatContainer">
+    <div id="messages" class="messages"></div>
+  </main>
 
-    <!-- Controls -->
-    <div class="controls">
-      <button id="imgBtn" class="circle-btn">📷</button>
-      <input id="fileInput" type="file" accept="image/*" hidden />
-      <input id="textInput" type="text" placeholder="Type message here..." />
-      <button id="sendBtn" class="circle-btn">➤</button>
-    </div>
-  </div>
+  <!-- Bottom Controls -->
+  <footer class="controls">
+    <button id="imgBtn" class="circle-btn">📷</button>
+    <input id="fileInput" type="file" accept="image/*" hidden />
+    <input id="textInput" type="text" placeholder="Type message here..." />
+    <button id="sendBtn" class="circle-btn">➤</button>
+  </footer>
 </body>
 </html>
