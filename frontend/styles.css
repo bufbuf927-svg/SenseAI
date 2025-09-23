@@ -1,59 +1,60 @@
 /* Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Segoe UI", sans-serif;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
 
 body {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #e6f9f4;
+  background: url("background.png") no-repeat center center fixed;
+  background-size: cover;
 }
 
 /* Header */
-.app-header {
-  background: linear-gradient(90deg, #0f9d58, #8bc34a);
-  padding: 10px 15px;
+.topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 12px 20px;
+  background: linear-gradient(90deg, #1e8ea0, #4caf50);
+  color: white;
 }
 
-.logo-title {
+.logo-area {
+  display: flex;
+  align-items: center;
+}
+.logo {
+  width: 45px;
+  margin-right: 10px;
+}
+.topbar h1 {
+  font-size: 1.5rem;
+}
+
+.actions {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-
-.logo {
-  height: 40px;
-  width: 40px;
+.lang-select {
+  padding: 8px;
   border-radius: 8px;
-}
-
-.app-header h1 {
-  font-size: 20px;
-  color: white;
-}
-
-.hospital-btn {
-  background: linear-gradient(90deg, #76c893, #a8e063);
   border: none;
-  border-radius: 30px;
-  padding: 8px 16px;
-  font-weight: bold;
+}
+.hospital-btn {
+  background: linear-gradient(90deg, #a8e063, #56ab2f);
+  border: none;
+  padding: 10px 15px;
+  border-radius: 20px;
   cursor: pointer;
 }
 
-/* Chat area */
-.chat-container {
+/* Chat container */
+#chatContainer {
   flex: 1;
-  background: url("background.png") center/cover no-repeat;
-  padding: 15px;
+  padding: 20px;
   overflow-y: auto;
+  background-color: rgba(255,255,255,0.7); /* watermark feel */
 }
 
 .messages {
@@ -62,12 +63,10 @@ body {
   gap: 10px;
 }
 
-/* Bubbles */
 .bubble {
-  max-width: 70%;
   padding: 10px 15px;
   border-radius: 20px;
-  font-size: 15px;
+  max-width: 70%;
   word-wrap: break-word;
 }
 
@@ -75,62 +74,46 @@ body {
   background: #00c853;
   color: white;
   align-self: flex-end;
-  border-bottom-right-radius: 5px;
 }
-
 .bubble.bot {
-  background: white;
+  background: #fff;
   color: black;
   align-self: flex-start;
-  border-bottom-left-radius: 5px;
+  border: 1px solid #ddd;
 }
 
-/* Input bar */
-.input-bar {
+/* Controls */
+.controls {
   display: flex;
   align-items: center;
   padding: 10px;
-  gap: 10px;
-  background: #e6f9f4;
-  position: sticky;
-  bottom: 15px; /* keep it above mobile browser bottom */
+  background: #e0f2f1;
 }
 
 #textInput {
   flex: 1;
-  padding: 10px 15px;
+  padding: 12px;
+  margin: 0 8px;
   border-radius: 20px;
-  border: none;
-  outline: none;
-  background: #00c853;
-  color: black;
-}
-
-#textInput::placeholder {
-  color: black;
-  opacity: 0.7;
+  border: 1px solid #ccc;
 }
 
 .circle-btn {
-  width: 40px;
-  height: 40px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   border: none;
-  font-size: 18px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  font-size: 1.2rem;
   cursor: pointer;
   background: #00c853;
   color: white;
 }
+.circle-btn:hover {
+  background: #009624;
+}
 
 /* Responsive */
 @media (max-width: 600px) {
-  .app-header h1 {
-    font-size: 16px;
-  }
-  .bubble {
-    font-size: 14px;
-  }
+  .topbar h1 { font-size: 1.2rem; }
+  .hospital-btn { padding: 8px 10px; font-size: 0.8rem; }
 }
